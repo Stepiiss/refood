@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
@@ -6,16 +7,16 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Přihlášený uživatel:", userCredential.user);
-      alert("Přihlášení úspěšné!");
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/");
     } catch (err) {
-      setError(err.message);
+      setError("Chyba přihlášení: " + err.message);
     }
   };
 
@@ -23,11 +24,10 @@ export default function Login() {
     setError("");
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      console.log("Přihlášený uživatel přes Google:", result.user);
-      alert("Přihlášení přes Google úspěšné!");
+      await signInWithPopup(auth, provider);
+      navigate("/");
     } catch (err) {
-      setError(err.message);
+      setError("Chyba přihlášení přes Google: " + err.message);
     }
   };
 
@@ -39,7 +39,7 @@ export default function Login() {
       >
         <h2 className="text-2xl font-bold mb-4">Přihlášení</h2>
 
-        {error && <p className="text-red-500 mb-2">{error}</p>}
+        {error && <p className="text-red-500 mb-2 text-sm">{error}</p>}
 
         <input
           type="email"
@@ -69,10 +69,23 @@ export default function Login() {
         <button
           type="button"
           onClick={handleGoogleLogin}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-4"
         >
           Přihlásit se přes Google
         </button>
+
+        <p className="text-center text-gray-600">
+          Nemáte účet?{" "}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Registrovat se
+          </Link>
+        </p>
+
+        <p className="text-center text-gray-600 mt-2">
+          <Link to="/" className="text-blue-500 hover:underline">
+            Zpět na hlavní stránku
+          </Link>
+        </p>
       </form>
     </div>
   );
