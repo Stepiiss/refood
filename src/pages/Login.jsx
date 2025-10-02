@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,6 +14,18 @@ export default function Login() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("Přihlášený uživatel:", userCredential.user);
       alert("Přihlášení úspěšné!");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      console.log("Přihlášený uživatel přes Google:", result.user);
+      alert("Přihlášení přes Google úspěšné!");
     } catch (err) {
       setError(err.message);
     }
@@ -49,9 +61,17 @@ export default function Login() {
 
         <button
           type="submit"
-          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
+          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 mb-4"
         >
           Přihlásit se
+        </button>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+        >
+          Přihlásit se přes Google
         </button>
       </form>
     </div>

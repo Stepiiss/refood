@@ -13,18 +13,18 @@ export default function Register() {
     e.preventDefault();
     setError("");
     try {
-      // vytvorim uzivatele ve Firebase Auth
+      // Vytvoření uživatele ve Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      // ulozim uzivatele do Firestore
+  
+      // Uložení uživatele do Firestore s výchozí rolí "user"
       await setDoc(doc(db, "users", user.uid), {
         name: name,
         email: email,
-        role: "user",
-        createdAt: serverTimestamp()
+        role: "user", // Výchozí role
+        createdAt: serverTimestamp(),
       });
-
+  
       alert("Registrace úspěšná! Přihlaste se.");
       setName("");
       setEmail("");
