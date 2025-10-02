@@ -16,7 +16,7 @@ export default function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (err) {
-      setError("Chyba přihlášení: " + err.message);
+      setError("Chyba email loginu: " + err.message);
     }
   };
 
@@ -27,7 +27,7 @@ export default function Login() {
       await signInWithPopup(auth, provider);
       navigate("/");
     } catch (err) {
-      setError("Chyba přihlášení přes Google: " + err.message);
+      setError("Chyba Google loginu: " + err.message);
     }
   };
 
