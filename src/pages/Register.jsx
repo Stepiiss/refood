@@ -15,20 +15,53 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+    
+    // Validace vstupů
+    if (!name || !email || !password) {
+      setError("Prosím vyplňte všechna pole");
+      return;
+    }
+  
+    if (password.length < 6) {
+      setError("Heslo musí mít alespoň 6 znaků");
+      return;
+    }
+  
     try {
+      // Vytvoření uživatele
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      await setDoc(doc(db, "users", user.uid), {
-        name: name,
-        email: email,
-        role: "user",
-        createdAt: serverTimestamp(),
-      });
-
-      navigate("/");
-    } catch (err) {
-      setError("Chyba při registraci. Zkontrolujte prosím údaje.");
+  
+      // Uložení dodatečných informací
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: email,
+          role: "user",
+          createdAt: serverTimestamp(),
+        });
+        
+        console.log("Uživatel úspěšně vytvořen");
+        navigate("/");
+      } catch (firestoreErr) {
+        console.error("Chyba při ukládání do Firestore:", firestoreErr);
+        setError("Chyba při vytváření profilu. Zkuste to prosím znovu.");
+      }
+    } catch (authErr) {
+      console.error("Chyba autentizace:", authErr);
+      switch (authErr.code) {
+        case 'auth/email-already-in-use':
+          setError("Tento email je již zaregistrován");
+          break;
+        case 'auth/invalid-email':
+          setError("Neplatný formát emailu");
+          break;
+        case 'auth/weak-password':
+          setError("Heslo je příliš slabé");
+          break;
+        default:
+          setError("Chyba při registraci: " + authErr.message);
+      }
     }
   };
 

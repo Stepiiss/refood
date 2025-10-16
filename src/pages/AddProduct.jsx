@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { db, storage } from "../firebase";
+import { useState, useEffect } from "react";
+import { db, storage, auth } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate, Link } from "react-router-dom";
+import Logo from "../components/logo";
 
 export default function AddProduct() {
   const [name, setName] = useState("");
@@ -13,55 +14,62 @@ export default function AddProduct() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Check authentication state
+  useEffect(() => {
+    if (!auth.currentUser) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!auth.currentUser) {
+      setError("Pro přidání produktu se musíte přihlásit");
+      navigate("/login");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
     try {
-      let imageUrl = "";
+      let picture = "";
       if (image) {
-        const imageRef = ref(storage, `products/${image.name + Date.now()}`);
-        await uploadBytes(imageRef, image);
-        imageUrl = await getDownloadURL(imageRef);
+        const imageRef = ref(storage, `products/${auth.currentUser.uid}_${Date.now()}_${image.name}`);
+        const snapshot = await uploadBytes(imageRef, image);
+        picture = await getDownloadURL(snapshot.ref);
       }
 
-      await addDoc(collection(db, "products"), {
+      const docRef = await addDoc(collection(db, "products"), {
         name,
         description,
         price: Number(price),
-        imageUrl,
+        picture,
         createdAt: new Date(),
+        userId: auth.currentUser.uid,
+        userEmail: auth.currentUser.email // Optional: add user email for reference
       });
 
+      console.log("Produkt přidán:", docRef.id);
       navigate("/offers");
     } catch (err) {
-      setError("Chyba při přidávání produktu: " + err.message);
+      console.error("Chyba:", err);
+      setError(err.code === 'permission-denied' 
+        ? "Nemáte oprávnění přidat produkt" 
+        : "Chyba při přidávání produktu: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
+
   return (
+    <div className="bg-[#25A73D] w-screen">
     <div className="min-h-screen flex items-center justify-center w-full bg-[#25A73D] p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 md:p-10">
-        <div className="text-center mb-8">
-          <svg
-            width="60"
-            height="60"
-            viewBox="0 0 48 48"
-            fill="none"
-            className="mx-auto mb-4"
-          >
-            <circle cx="24" cy="24" r="24" fill="#25A73D" />
-            <path
-              d="M34 18L21 31L14 24"
-              stroke="white"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        <div className="text-center flex flex-col gap-2 mb-8">
+          <Logo className="h-16 mb-5" />
           <h2 className="text-3xl font-bold text-gray-800 mb-2">Přidat produkt</h2>
           <p className="text-gray-500">Vyplňte údaje o novém produktu</p>
         </div>
@@ -81,7 +89,7 @@ export default function AddProduct() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
+              className="w-full p-3 border border-gray-300 text-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
               required
             />
           </div>
@@ -93,7 +101,7 @@ export default function AddProduct() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
+              className="w-full p-3 border border-gray-300 text-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
               rows="4"
               required
             />
@@ -107,7 +115,7 @@ export default function AddProduct() {
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
+              className="w-full p-3 border border-gray-300 text-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
               required
               min="0"
               step="1"
@@ -115,21 +123,32 @@ export default function AddProduct() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Obrázek produktu
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImage(e.target.files[0])}
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
-            />
-          </div>
+            <div className="flex justify-center items-center">
+              <label className="bg-black cursor-pointer border-2 border-black rounded-lg px-4 py-2 hover:border-[#25A73D] transition-colors">
+                <span className="text-white">Vybrat soubor</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImage(e.target.files[0])}
+                    className="hidden"
+                  />
+              </label>
+            </div>
+  
+            {image && (
+              <p className="text-center mt-2 text-sm text-black">
+                  Vybraný soubor: {image.name}
+              </p>
+            )}
+        </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#25A73D] hover:bg-[#1e8c32] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25A73D] transition-transform transform hover:scale-105 disabled:opacity-50"
+            className="w-full flex justify-center bg-black cursor-pointer border-2 border-black rounded-lg px-4 py-2 hover:border-[#25A73D] transition-colors"
           >
             {loading ? "Přidávám..." : "Přidat produkt"}
           </button>
@@ -141,6 +160,7 @@ export default function AddProduct() {
           </Link>
         </div>
       </div>
+    </div>
     </div>
   );
 }
