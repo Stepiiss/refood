@@ -44,12 +44,12 @@ export default function Offers() {
 
             {/* Navigace vpravo */}
             <div className="flex items-center gap-6">
-              <Link to="/" className="text-gray-800 hover:text-[#25A73D] transition-colors">
+              <Link to="/" className="!text-gray-800 hover:text-[#25A73D] transition-colors">
                 Domů
               </Link>
               <Link
                 to="/offers"
-                className="text-gray-800 hover:text-[#25A73D] transition-colors font-semibold"
+                className="!text-gray-800 hover:text-[#25A73D] transition-colors font-semibold"
               >
                 Nabídky
               </Link>
@@ -57,13 +57,13 @@ export default function Offers() {
                 <>
                   <Link
                     to="/add-product"
-                    className="text-gray-800 hover:text-[#25A73D] transition-colors"
+                    className="!text-gray-800 hover:text-[#25A73D] transition-colors"
                   >
                     Přidat nabídku
                   </Link>
                   <Link
                     to="/profile"
-                    className="text-gray-800 hover:text-[#25A73D] transition-colors"
+                    className="!text-gray-800 hover:text-[#25A73D] transition-colors"
                   >
                     Profil
                   </Link>
@@ -77,7 +77,7 @@ export default function Offers() {
               ) : (
                 <Link
                   to="/login"
-                  className="bg-[#25A73D] text-white px-4 py-2 rounded-lg hover:bg-[#1e8c32] transition-colors"
+                  className="bg-[#25A73D] !text-white px-4 py-2 rounded-lg hover:bg-[#1e8c32] transition-colors"
                 >
                   Přihlásit
                 </Link>
@@ -88,7 +88,7 @@ export default function Offers() {
       </nav>
 
       {/* Hlavní obsah */}
-      <div className="w-full mt-25 px-4"> {/* Změněno: přidáno mt-4 pro malý odstup od navigace */}
+      <div className="w-full mt-25 px-4"> 
       <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
         <div className="text-center flex flex-col gap-2 mb-8">
           <Logo className="h-16 mb-5" />
