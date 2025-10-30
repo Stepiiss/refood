@@ -32,7 +32,7 @@ export default function Offers() {
   }, []);
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-screen flex flex-col">
+    <div className="bg-[#25A73D] min-h-screen w-full flex flex-col">
       {/* Navigační lišta */}
       <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 w-full">
         <div className="w-full px-6">
@@ -134,9 +134,6 @@ export default function Offers() {
                     </h3>
                     <p className="text-gray-600 mb-4 line-clamp-3">{product.description}</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-2xl font-bold text-[#25A73D]">
-                        {product.price} Kč
-                      </span>
                       <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
                         Kontaktovat
                       </button>

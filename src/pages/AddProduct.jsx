@@ -8,7 +8,6 @@ import Logo from "../components/logo";
 export default function AddProduct() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,7 +43,6 @@ export default function AddProduct() {
       const docRef = await addDoc(collection(db, "products"), {
         name,
         description,
-        price: Number(price),
         picture,
         createdAt: new Date(),
         userId: auth.currentUser.uid,
@@ -107,20 +105,6 @@ export default function AddProduct() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Cena (Kč)
-            </label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full p-3 border border-gray-300 text-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
-              required
-              min="0"
-              step="1"
-            />
-          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
