@@ -7,36 +7,92 @@ import {
   doc,
   orderBy,
   query,
+  getDoc,
+  limit,
+  updateDoc,
 } from "firebase/firestore";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from "../components/logo";
+import Navbar from "../components/navbar";
+import ProductCard from "../components/ProductCard";
 
 export default function Admin() {
   const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [activeTab, setActiveTab] = useState("products");
   const navigate = useNavigate();
 
+  // Kontrola admin oprávnění
   useEffect(() => {
-    const fetchProducts = async () => {
+    const checkAdminStatus = async () => {
+      const user = auth.currentUser;
+
+      if (!user) {
+        navigate("/");
+        return;
+      }
+
       try {
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setProducts(data);
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists() && userDoc.data().role === "admin") {
+          setIsAdmin(true);
+        } else {
+          alert("Nemáte oprávnění pro přístup k admin panelu");
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Chyba při ověřování:", err);
+        navigate("/");
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const fetchData = async () => {
+      try {
+        if (activeTab === "products") {
+          const q = query(
+            collection(db, "products"),
+            orderBy("createdAt", "desc"),
+            limit(100)
+          );
+          const querySnapshot = await getDocs(q);
+          const data = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setProducts(data);
+        } else {
+          const usersSnapshot = await getDocs(collection(db, "users"));
+          const usersData = usersSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          console.log("Načtení uživatelé:", usersData);
+          setUsers(usersData);
+        }
       } catch (err) {
         console.error("Chyba při načítání:", err);
-        setError("Nepodařilo se načíst produkty");
+        setError(`Nepodařilo se načíst data: ${err.message}`);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
-  }, []);
+    setLoading(true);
+    setError("");
+    fetchData();
+  }, [isAdmin, activeTab]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Opravdu chceš tuto nabídku smazat?")) {
@@ -50,67 +106,91 @@ export default function Admin() {
     }
   };
 
-  return (
-    <div className="bg-[#25A73D] min-h-screen w-full flex flex-col">
-      {/* Navigační lišta */}
-      <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 w-full">
-        <div className="w-full px-6">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center">
-              <Logo className="h-12" />
-            </Link>
+  const handleToggleAdmin = async (userId, currentRole) => {
+    if (
+      window.confirm(
+        `Opravdu chcete ${
+          currentRole === "admin" ? "odebrat" : "přidat"
+        } admin práva?`
+      )
+    ) {
+      try {
+        await updateDoc(doc(db, "users", userId), {
+          role: currentRole === "admin" ? "user" : "admin",
+        });
+        setUsers(
+          users.map((u) =>
+            u.id === userId
+              ? { ...u, role: currentRole === "admin" ? "user" : "admin" }
+              : u
+          )
+        );
+      } catch (err) {
+        console.error("Chyba při změně role:", err);
+        alert("Nepodařilo se změnit roli uživatele");
+      }
+    }
+  };
 
-            {/* Navigace */}
-            <div className="flex items-center gap-6">
-              <Link to="/" className="!text-gray-800 hover:text-[#25A73D] transition-colors">
-                Domů
-              </Link>
-              <Link to="/offers" className="!text-gray-800 hover:text-[#25A73D] transition-colors">
-                Nabídky
-              </Link>
-              <Link
-                to="/admin"
-                className="!text-gray-800 hover:text-[#25A73D] transition-colors font-semibold"
-              >
-                Admin
-              </Link>
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm("Opravdu chcete smazat tohoto uživatele?")) {
+      try {
+        await deleteDoc(doc(db, "users", userId));
+        setUsers(users.filter((u) => u.id !== userId));
+      } catch (err) {
+        console.error("Chyba při mazání:", err);
+        alert("Nepodařilo se smazat uživatele");
+      }
+    }
+  };
 
-              {auth.currentUser ? (
-                <>
-                  <Link
-                    to="/profile"
-                    className="!text-gray-800 hover:text-[#25A73D] transition-colors"
-                  >
-                    Profil
-                  </Link>
-                  <button
-                    onClick={() => auth.signOut().then(() => navigate("/"))}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
-                  >
-                    Odhlásit
-                  </button>
-                </>
-              ) : (
-                <Link
-                  to="/login"
-                  className="bg-[#25A73D] !text-white px-4 py-2 rounded-lg hover:bg-[#1e8c32] transition-colors"
-                >
-                  Přihlásit
-                </Link>
-              )}
-            </div>
-          </div>
+  if (checkingAuth) {
+    return (
+      <div className="bg-[#25A73D] min-h-screen w-full flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <p className="text-xl text-gray-700">Ověřování oprávnění...</p>
         </div>
-      </nav>
+      </div>
+    );
+  }
 
-      {/* Hlavní obsah */}
+  if (!isAdmin) {
+    return null;
+  }
+
+  return (
+    <div className="bg-[#25A73D] min-h-screen w-screen flex flex-col">
+      <Navbar />
+
       <div className="w-full mt-25 px-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
           <div className="text-center flex flex-col gap-2 mb-8">
             <Logo className="h-16 mb-5" />
             <h2 className="text-3xl font-bold text-gray-800">Admin panel</h2>
-            <p className="text-gray-600">Spravuj všechny nabídky v systému</p>
+          </div>
+
+          {/* Záložky */}
+          <div className="flex gap-4 mb-6 border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab("products")}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === "products"
+                  ? "text-[#25A73D] border-b-2 border-[#25A73D]"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Produkty
+            </button>
+            <button
+              onClick={() => setActiveTab("users")}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === "users"
+                  ? "text-[#25A73D] border-b-2 border-[#25A73D]"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Uživatelé
+            </button>
           </div>
 
           {error && (
@@ -120,64 +200,114 @@ export default function Admin() {
           )}
 
           {loading ? (
-            <div className="text-center py-10">
-              <p className="text-xl text-gray-700">Načítám produkty...</p>
-            </div>
-          ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {[...Array(8)].map((_, i) => (
                 <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-xl transition-all transform hover:-translate-y-1"
+                  key={i}
+                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 animate-pulse"
                 >
-                  {product.picture ? (
-                    <img
-                      src={product.picture}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">Bez obrázku</span>
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">
-                      {product.description}
-                    </p>
-
-                    <div className="flex justify-between items-center">
-                      <button
-                        onClick={() => navigate(`/edit-product/${product.id}`)}
-                        className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                      >
-                        Upravit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-colors"
-                      >
-                        Smazat
-                      </button>
-                    </div>
-
-                    <div className="mt-2 text-sm text-gray-500">
-                      Přidáno:{" "}
-                      {product.createdAt?.toDate
-                        ? product.createdAt.toDate().toLocaleDateString()
-                        : "Neznámé datum"}
+                  <div className="w-full h-48 bg-gray-300"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-6 bg-gray-300 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                    <div className="flex gap-2">
+                      <div className="h-10 bg-gray-300 rounded flex-1"></div>
+                      <div className="h-10 bg-gray-300 rounded flex-1"></div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+          ) : activeTab === "products" ? (
+            products.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    showActions={true}
+                    onEdit={(id) => navigate(`/edit-product/${id}`)}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 text-gray-500">
+                Žádné nabídky k zobrazení
+              </div>
+            )
           ) : (
-            <div className="text-center py-10 text-gray-500">
-              Žádné nabídky k zobrazení
-            </div>
+            users.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-3 text-left text-gray-700 font-semibold">
+                        Email
+                      </th>
+                      <th className="px-4 py-3 text-left text-gray-700 font-semibold">
+                        Role
+                      </th>
+                      <th className="px-4 py-3 text-left text-gray-700 font-semibold">
+                        Vytvořeno
+                      </th>
+                      <th className="px-4 py-3 text-left text-gray-700 font-semibold">
+                        Akce
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user.id} className="border-b hover:bg-gray-50">
+                        <td className="px-4 py-3 text-gray-800">{user.email}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm ${
+                              user.role === "admin"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {user.role || "user"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600 text-sm">
+                          {user.createdAt?.toDate
+                            ? user.createdAt.toDate().toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleToggleAdmin(user.id, user.role)}
+                              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                                user.role === "admin"
+                                  ? "bg-orange-500 text-white hover:bg-orange-600"
+                                  : "bg-blue-500 text-white hover:bg-blue-600"
+                              }`}
+                            >
+                              {user.role === "admin"
+                                ? "Odebrat admin"
+                                : "Přidat admin"}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(user.id)}
+                              className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-colors text-sm"
+                            >
+                              Smazat
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-10 text-gray-500">
+                Žádní uživatelé k zobrazení
+              </div>
+            )
           )}
         </div>
       </div>

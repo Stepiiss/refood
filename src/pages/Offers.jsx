@@ -1,19 +1,25 @@
 import { useState, useEffect } from "react";
 import { db, auth } from "../firebase";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { Link, useNavigate } from "react-router-dom";
+import { collection, getDocs, orderBy, query, limit } from "firebase/firestore";
+import { Link } from "react-router-dom";
 import Logo from "../components/logo";
+import Navbar from "../components/navbar";
+import ProductCard from "../components/ProductCard";
 
 export default function Offers() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        // Omezení na 50 produktů pro rychlejší načítání
+        const q = query(
+          collection(db, "products"), 
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
         const querySnapshot = await getDocs(q);
         const productsData = querySnapshot.docs.map(doc => ({
           id: doc.id,
@@ -32,126 +38,53 @@ export default function Offers() {
   }, []);
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-full flex flex-col">
-      {/* Navigační lišta */}
-      <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 w-full">
-        <div className="w-full px-6">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo vlevo */}
-            <Link to="/" className="flex items-center">
-              <Logo className="h-12" />
-            </Link>
+    <div className="bg-[#25A73D] min-h-screen w-screen flex flex-col">
+      <Navbar />
 
-            {/* Navigace vpravo */}
-            <div className="flex items-center gap-6">
-              <Link to="/" className="!text-gray-800 hover:text-[#25A73D] transition-colors">
-                Domů
-              </Link>
-              <Link
-                to="/offers"
-                className="!text-gray-800 hover:text-[#25A73D] transition-colors font-semibold"
-              >
-                Nabídky
-              </Link>
-              {auth.currentUser ? (
-                <>
-                  <Link
-                    to="/add-product"
-                    className="!text-gray-800 hover:text-[#25A73D] transition-colors"
-                  >
-                    Přidat nabídku
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="!text-gray-800 hover:text-[#25A73D] transition-colors"
-                  >
-                    Profil
-                  </Link>
-                  <button
-                    onClick={() => auth.signOut().then(() => navigate("/"))}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
-                  >
-                    Odhlásit
-                  </button>
-                </>
-              ) : (
-                <Link
-                  to="/login"
-                  className="bg-[#25A73D] !text-white px-4 py-2 rounded-lg hover:bg-[#1e8c32] transition-colors"
-                >
-                  Přihlásit
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hlavní obsah */}
       <div className="w-full mt-25 px-4"> 
-      <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
-        <div className="text-center flex flex-col gap-2 mb-8">
-          <Logo className="h-16 mb-5" />
-          <h2 className="text-3xl font-bold text-gray-800">Nabídka jídla</h2>
-          {auth.currentUser && (
-            <Link to="/add-product" className="inline-block bg-[#25A73D] !text-white px-6 py-2 rounded-lg hover:bg-[#1e8c32] transition-colors mt-4">
-              Přidat novou nabídku
-            </Link>
-          )}
-        </div>
+        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+          <div className="text-center flex flex-col gap-2 mb-8">
+            <Logo className="h-16 mb-5" />
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Nabídka jídla</h2>
+            {auth.currentUser && (
+              <Link to="/add-product" className="inline-block bg-[#25A73D] !text-white px-6 py-2 rounded-lg hover:bg-[#1e8c32] transition-colors mt-4">
+                Přidat novou nabídku
+              </Link>
+            )}
+          </div>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6 text-center">
-              <span className="block sm:inline">{error}</span>
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
+              {error}
             </div>
           )}
 
           {loading ? (
-            <div className="text-center py-10">
-              <p className="text-xl text-gray-700">Načítám produkty...</p>
-            </div>
-          ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-xl transition-all transform hover:-translate-y-1"
-                >
-                  {product.picture ? (
-                    <img
-                      src={product.picture}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">Bez obrázku</span>
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{product.description}</p>
-                    <div className="flex justify-between items-center">
-                      <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-                        Kontaktovat
-                      </button>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      Přidáno:{" "}
-                      {product.createdAt?.toDate
-                        ? product.createdAt.toDate().toLocaleDateString()
-                        : "Neznámé datum"}
-                    </div>
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 animate-pulse">
+                  <div className="w-full h-48 bg-gray-300"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-6 bg-gray-300 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-300 rounded"></div>
+                    <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+                    <div className="h-10 bg-gray-300 rounded"></div>
                   </div>
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-10 text-gray-500">
-              Zatím zde nejsou žádné produkty
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  showActions={false}
+                />
+              ))}
             </div>
+          ) : (
+            <div className="text-center py-10 text-gray-500">Zatím zde nejsou žádné produkty</div>
           )}
         </div>
       </div>

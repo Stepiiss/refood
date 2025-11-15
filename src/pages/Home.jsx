@@ -25,29 +25,12 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {!user ? (
-                <>
-                  <Link
-                    to="/register"
-                    className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base !text-black font-medium rounded-xl text-[#25A73D] bg-white hover:bg-green-50 transition shadow-lg hover:scale-105 transform duration-200"
-                  >
-                    Začít zdarma
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-base font-medium rounded-xl !text-white hover:bg-white/10 transition shadow-lg hover:scale-105 transform duration-200"
-                  >
-                    Přihlásit se
-                  </Link>
-                </>
-              ) : (
-                <Link
-                  to="/offers"
-                  className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-xl text-[#25A73D] bg-white hover:bg-green-50 transition shadow-lg hover:scale-105 transform duration-200"
-                >
-                  Procházet nabídky
-                </Link>
-              )}
+              <Link
+                to="/offers"
+                className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base !text-black font-medium rounded-xl text-[#25A73D] bg-white hover:bg-green-50 transition shadow-lg hover:scale-105 transform duration-200"
+              >
+                Prohlédnout produkty
+              </Link>
             </div>
           </div>
         </div>
