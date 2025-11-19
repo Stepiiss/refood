@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();       
-    return (<nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 w-full">
-        <div className="w-full px-6">
+    return (<nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 w-full max-w-full overflow-x-hidden">
+        <div className="w-full max-w-full px-6 box-border">
           <div className="flex justify-between items-center h-16">
             {/* Logo vlevo */}
             <Link to="/" className="flex items-center">

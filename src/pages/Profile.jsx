@@ -14,6 +14,9 @@ export default function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.documentElement.style.overflowX = 'hidden';
+    document.body.style.overflowX = 'hidden';
+    
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (!currentUser) {
         navigate("/login");
@@ -43,7 +46,11 @@ export default function Profile() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      document.documentElement.style.overflowX = '';
+      document.body.style.overflowX = '';
+      unsubscribe();
+    };
   }, [navigate]);
 
   const handleDeleteProduct = async (id) => {
@@ -69,21 +76,18 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="bg-[#25A73D] min-h-screen w-screen overflow-x-hidden">
+      <div className="bg-[#25A73D] min-h-screen w-full max-w-full overflow-x-hidden">
         <Navbar />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-xl text-white">Načítám profil...</p>
-        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-screen overflow-x-hidden">
+    <div className="bg-[#25A73D] min-h-screen w-full max-w-full overflow-x-hidden">
       <Navbar />
 
-      <div className="w-full mt-25 px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="w-full max-w-full mt-25 px-4 pb-8">
+        <div className="max-w-6xl mx-auto w-full">
           <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-10 mb-8">
             <div className="text-center mb-6">
               <Logo className="h-16 mb-5 mx-auto" />
@@ -105,7 +109,6 @@ export default function Profile() {
                     <p className="text-gray-800 font-medium break-words">{user?.email}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Role</p>
                     <span className={`inline-block px-3 py-1 rounded-full text-sm ${
                       user?.role === "admin" 
                         ? "bg-green-100 text-green-800" 
@@ -131,14 +134,14 @@ export default function Profile() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center flex-wrap">
               <Link
                 to="/add-product"
-                className="bg-[#25A73D] text-white px-6 py-3 rounded-lg hover:bg-[#1e8c32] transition-colors text-center"
+                className="bg-[#25A73D] !text-white px-6 py-3 rounded-lg hover:bg-[#1e8c32] transition-colors text-center"
               >
                 Přidat novou nabídku
               </Link>
               {user?.role === "admin" && (
                 <Link
                   to="/admin"
-                  className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors text-center"
+                  className="bg-blue-500 !text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors text-center"
                 >
                   Admin panel
                 </Link>
