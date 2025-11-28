@@ -6,6 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import Logo from "../components/logo";
 import Navbar from "../components/navbar";
+import BlackButton from "../components/BlackButton";
 
 const mapContainerStyle = {
   width: "100%",
@@ -19,6 +20,7 @@ export default function AddProduct() {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
   const [location, setLocation] = useState(null);
+  const [expirationDate, setExpirationDate] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -46,6 +48,21 @@ export default function AddProduct() {
       return;
     }
 
+    // Validace data spotřeby
+    if (!expirationDate) {
+      setError("Datum spotřeby je povinné");
+      return;
+    }
+
+    const selectedDate = new Date(expirationDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      setError("Nelze přidat produkt s prošlým datem spotřeby");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
@@ -62,6 +79,7 @@ export default function AddProduct() {
         description,
         picture,
         location: location || null,
+        expirationDate: new Date(expirationDate),
         createdAt: new Date(),
         userId: auth.currentUser.uid,
         userEmail: auth.currentUser.email // Optional: add user email for reference
@@ -79,16 +97,21 @@ export default function AddProduct() {
     }
   };
 
+  // Získání dnešního data ve formátu YYYY-MM-DD pro min atribut
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   return (
-    <div className="bg-[#25A73D] min-h-screen w-screen overflow-x-hidden">
+    <div className="bg-[#25A73D] min-h-screen overflow-x-hidden">
       <Navbar />
       
-      <div className="w-full mt-20 px-4 py-8">
+      <div className="w-full mt-25 px-4">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8 md:p-10">
           <div className="text-center mb-8">
             <Logo className="h-16 mb-5 mx-auto" />
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Přidat produkt</h2>
-            <p className="text-gray-500">Vyplňte údaje o novém produktu</p>
           </div>
 
           {error && (
@@ -128,7 +151,7 @@ export default function AddProduct() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Obrázek produktu
               </label>
-              <label className="w-full bg-black cursor-pointer border-2 border-black rounded-lg px-4 py-3 hover:border-[#25A73D] transition-colors block text-center">
+              <label className="w-full bg-black cursor-pointer border-2 border-black rounded-lg px-4 py-3 block text-center">
                 <span className="text-white">Vybrat soubor</span>
                 <input
                   type="file"
@@ -169,13 +192,30 @@ export default function AddProduct() {
               )}
             </div>
 
-            <button
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Datum spotřeby *
+              </label>
+              <input
+                type="date"
+                value={expirationDate}
+                onChange={(e) => setExpirationDate(e.target.value)}
+                min={getTodayDate()}
+                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-[#25A73D] focus:outline-none"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Vyberte datum, do kterého je potravina spotřebitelná
+              </p>
+            </div>
+
+            <BlackButton
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+              className="w-full"
             >
               {loading ? "Přidávám..." : "Přidat produkt"}
-            </button>
+            </BlackButton>
           </form>
 
           <div className="text-center mt-6">

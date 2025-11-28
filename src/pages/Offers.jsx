@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Logo from "../components/logo";
 import Navbar from "../components/navbar";
 import ProductCard from "../components/ProductCard";
+import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 export default function Offers() {
   const [products, setProducts] = useState([]);
@@ -14,7 +15,9 @@ export default function Offers() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Omezení na 50 produktů pro rychlejší načítání
+        // Nejprve vymaž prošlé produkty
+        await cleanupExpiredProducts();
+        
         const q = query(
           collection(db, "products"), 
           orderBy("createdAt", "desc"),
@@ -38,7 +41,7 @@ export default function Offers() {
   }, []);
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-screen flex flex-col">
+    <div className="bg-[#25A73D] min-h-screen flex flex-col">
       <Navbar />
 
       <div className="w-full mt-25 px-4"> 

@@ -5,6 +5,7 @@ import { doc, getDoc, collection, query, where, getDocs, deleteDoc } from "fireb
 import Navbar from "../components/navbar";
 import Logo from "../components/logo";
 import ProductCard from "../components/ProductCard";
+import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -21,6 +22,10 @@ export default function Profile() {
       }
 
       try {
+        // Vymaž prošlé produkty
+        await cleanupExpiredProducts();
+        
+        // Načtení uživatelských dat
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
           setUser({ uid: currentUser.uid, email: currentUser.email, ...userDoc.data() });
@@ -28,6 +33,7 @@ export default function Profile() {
           setUser({ uid: currentUser.uid, email: currentUser.email });
         }
 
+        // Načtení produktů uživatele
         const q = query(collection(db, "products"), where("userId", "==", currentUser.uid));
         const querySnapshot = await getDocs(q);
         const products = querySnapshot.docs.map((doc) => ({
@@ -80,10 +86,10 @@ export default function Profile() {
   }
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-full max-w-full overflow-x-hidden">
+    <div className="bg-[#25A73D] flex justify-center items-stretch min-h-screen">
       <Navbar />
 
-      <div className="w-full max-w-full mt-25 px-4 pb-8">
+      <div className="max-w-full mt-25 px-4 pb-8">
         <div className="max-w-6xl mx-auto w-full">
           <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-10 mb-8">
             <div className="text-center mb-6">
@@ -152,7 +158,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-10">
+          <div className="bg-white rounded-2xl shadow-2xl p-4">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">Moje nabídky</h3>
             
             {userProducts.length > 0 ? (

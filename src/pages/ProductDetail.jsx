@@ -47,7 +47,7 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="bg-[#25A73D] min-h-screen w-screen">
+      <div className="bg-[#25A73D] min-h-screen">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-xl text-white">Načítám...</p>
@@ -58,7 +58,7 @@ export default function ProductDetail() {
 
   if (error || !product) {
     return (
-      <div className="bg-[#25A73D] min-h-screen w-screen">
+      <div className="bg-[#25A73D] min-h-screen ">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">

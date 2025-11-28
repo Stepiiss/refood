@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import Navbar from "../components/navbar";
+import BlackButton from "../components/BlackButton";
 
 const mapContainerStyle = {
   width: "100%",
@@ -230,13 +231,13 @@ export default function EditProduct() {
             </div>
 
             <div className="flex gap-4">
-              <button
+              <BlackButton
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-3 px-4 bg-[#25A73D] text-white rounded-lg hover:bg-[#1e8c32] disabled:bg-gray-400 transition-colors"
+                className="flex-1"
               >
                 {loading ? "Ukládám..." : "Uložit změny"}
-              </button>
+              </BlackButton>
               <Link
                 to="/admin"
                 className="flex-1 py-3 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-center"
