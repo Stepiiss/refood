@@ -48,6 +48,15 @@ export default function ProductCard({ product, onEdit, onDelete, showActions = f
           {product.description}
         </p>
 
+        {/* Kategorie */}
+        {product.category && (
+          <div className="mb-3">
+            <span className="inline-block px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+              {product.category === "ready" ? "Hotové jídlo" : "Suroviny"}
+            </span>
+          </div>
+        )}
+
         {/* Datum spotřeby */}
         {product.expirationDate && (
           <div className="mb-4">

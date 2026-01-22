@@ -11,6 +11,7 @@ export default function Offers() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -40,6 +41,10 @@ export default function Offers() {
     fetchProducts();
   }, []);
 
+  const filteredProducts = selectedCategory === "all" 
+    ? products 
+    : products.filter(product => product.category === selectedCategory);
+
   return (
     <div className="bg-[#25A73D] min-h-screen flex flex-col">
       <Navbar />
@@ -62,6 +67,19 @@ export default function Offers() {
             </div>
           )}
 
+          {/* Filtr kategorií */}
+          <div className="mb-8 flex justify-center">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-6 py-3 bg-white border-2 border-[#25A73D] text-gray-800 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#25A73D] cursor-pointer hover:border-[#1e8c32] transition-colors"
+            >
+              <option value="all">Všechny produkty</option>
+              <option value="ready">Hotové jídlo</option>
+              <option value="ingredients">Suroviny</option>
+            </select>
+          </div>
+
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
@@ -77,15 +95,21 @@ export default function Offers() {
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  showActions={false}
-                />
-              ))}
-            </div>
+            <>
+              {filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      showActions={false}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10 text-gray-500">V této kategorii nejsou žádné produkty</div>
+              )}
+            </>
           ) : (
             <div className="text-center py-10 text-gray-500">Zatím zde nejsou žádné produkty</div>
           )}

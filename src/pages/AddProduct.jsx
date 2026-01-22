@@ -21,6 +21,7 @@ export default function AddProduct() {
   const [image, setImage] = useState(null);
   const [location, setLocation] = useState(null);
   const [expirationDate, setExpirationDate] = useState("");
+  const [category, setCategory] = useState("ready");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ export default function AddProduct() {
         picture,
         location: location || null,
         expirationDate: new Date(expirationDate),
+        category: category,
         createdAt: new Date(),
         userId: auth.currentUser.uid,
         userEmail: auth.currentUser.email // Optional: add user email for reference
@@ -145,6 +147,21 @@ export default function AddProduct() {
                 rows="4"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kategorie
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-[#25A73D] focus:outline-none"
+                required
+              >
+                <option value="ready">Hotové jídlo</option>
+                <option value="ingredients">Suroviny</option>
+              </select>
             </div>
 
             <div>

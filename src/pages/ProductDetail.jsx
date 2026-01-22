@@ -115,19 +115,9 @@ export default function ProductDetail() {
               </div>
 
               {!user ? (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-blue-800 mb-2">
-                      📧 <strong>Email prodejce:</strong> {product.userEmail || "kontakt@refood.cz"}
-                    </p>
-                    <p className="text-xs text-blue-600">
-                      Pro zobrazení mapy s přesnou lokací se prosím přihlaste
-                    </p>
-                  </div>
-                  <Link
-                    to="/login"
-                    className="w-full inline-block text-center bg-[#25A73D] text-white px-6 py-3 rounded-lg hover:bg-[#1e8c32] transition-colors"
-                  >
+                <div className="text-center">
+                  <p className="text-yellow-800 font-medium mb-4">Pro kontaktování prodejce se musíte přihlásit</p>
+                  <Link to="/login" className="w-full inline-block text-center bg-[#25A73D] !text-white px-6 py-3 rounded-lg hover:bg-[#1e8c32] transition-colors">
                     Přihlásit se
                   </Link>
                 </div>

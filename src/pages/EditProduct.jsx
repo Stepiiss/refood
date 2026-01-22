@@ -17,8 +17,10 @@ const defaultCenter = { lat: 50.0755, lng: 14.4378 }; // Praha
 export default function EditProduct() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("ready");
   const [picture, setPicture] = useState(null);
   const [currentPictureURL, setCurrentPictureURL] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -67,8 +69,15 @@ export default function EditProduct() {
           const data = productDoc.data();
           setName(data.name || "");
           setDescription(data.description || "");
+          setCategory(data.category || "ready");
           setCurrentPictureURL(data.picture || "");
           setLocation(data.location || null);
+          
+          // Načtení data spotřeby
+          if (data.expirationDate) {
+            const date = new Date(data.expirationDate.seconds ? data.expirationDate.seconds * 1000 : data.expirationDate);
+            setExpirationDate(date.toISOString().split('T')[0]);
+          }
         } else {
           setError("Produkt nenalezen");
         }
@@ -86,6 +95,11 @@ export default function EditProduct() {
       latitude: e.latLng.lat(),
       longitude: e.latLng.lng(),
     });
+  };
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   };
 
   const handleSubmit = async (e) => {
@@ -107,8 +121,10 @@ export default function EditProduct() {
       await updateDoc(doc(db, "products", id), {
         name,
         description,
+        category: category,
         picture: pictureURL,
         location: location || null,
+        expirationDate: expirationDate ? new Date(expirationDate) : null,
         updatedAt: new Date(),
       });
 
@@ -182,6 +198,22 @@ export default function EditProduct() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700" htmlFor="category">
+                Kategorie
+              </label>
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
+                required
+              >
+                <option value="ready">Hotové jídlo</option>
+                <option value="ingredients">Suroviny</option>
+              </select>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700">
                 Aktuální obrázek
               </label>
@@ -205,6 +237,23 @@ export default function EditProduct() {
                 onChange={(e) => setPicture(e.target.files[0])}
                 className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="expirationDate">
+                Datum spotřeby
+              </label>
+              <input
+                id="expirationDate"
+                type="date"
+                value={expirationDate}
+                onChange={(e) => setExpirationDate(e.target.value)}
+                min={getTodayDate()}
+                className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Vyberte datum, do kterého je potravina spotřebitelná
+              </p>
             </div>
 
             <div>
