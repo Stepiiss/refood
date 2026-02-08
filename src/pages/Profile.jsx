@@ -10,6 +10,9 @@ import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [userProducts, setUserProducts] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -41,6 +44,29 @@ export default function Profile() {
           ...doc.data(),
         }));
         setUserProducts(products);
+
+        // Načtení recenzí uživatele
+        try {
+          const reviewsQuery = query(collection(db, "reviews"), where("userId", "==", currentUser.uid));
+          const reviewsSnapshot = await getDocs(reviewsQuery);
+          const reviewsData = reviewsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          reviewsData.sort((a, b) => {
+            const aTime = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+            const bTime = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+            return bTime - aTime;
+          });
+
+          setReviews(reviewsData);
+        } catch (reviewsErr) {
+          console.error("Chyba při načítání recenzí:", reviewsErr);
+          setReviewsError("Nepodařilo se načíst recenze");
+        } finally {
+          setReviewsLoading(false);
+        }
       } catch (err) {
         console.error("Chyba při načítání:", err);
         setError("Nepodařilo se načíst data profilu");
@@ -84,6 +110,24 @@ export default function Profile() {
       </div>
     );
   }
+
+  const averageRating = reviews.length
+    ? Math.round((reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / reviews.length) * 10) / 10
+    : 0;
+
+  const renderStars = (value) => {
+    return Array.from({ length: 5 }, (_, index) => {
+      const filled = index < value;
+      return (
+        <span
+          key={index}
+          className={filled ? "text-yellow-400" : "text-gray-300"}
+        >
+          ★
+        </span>
+      );
+    });
+  };
 
   return (
     <div className="bg-[#25A73D] flex justify-center items-stretch min-h-screen">
@@ -129,6 +173,14 @@ export default function Profile() {
                   <div>
                     <p className="text-sm text-gray-600">Počet nabídek</p>
                     <p className="text-2xl font-bold text-[#25A73D]">{userProducts.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Hodnocení</p>
+                    <div className="flex items-center gap-2">
+                      <div className="text-lg">{renderStars(Math.round(averageRating))}</div>
+                      <span className="text-gray-700 font-semibold">{averageRating || "0"} / 5</span>
+                      <span className="text-gray-500 text-sm">({reviews.length})</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -178,11 +230,46 @@ export default function Profile() {
                 <p className="text-gray-500 mb-4">Zatím jste nepřidali žádné nabídky</p>
                 <Link
                   to="/add-product"
-                  className="inline-block bg-[#25A73D] text-white px-6 py-3 rounded-lg hover:bg-[#1e8c32] transition-colors"
+                  className="inline-block bg-[#25A73D] !text-white px-6 py-3 rounded-lg "
                 >
                   Přidat první nabídku
                 </Link>
               </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-2xl p-6 mt-8">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">Moje recenze</h3>
+
+            {reviewsError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
+                {reviewsError}
+              </div>
+            )}
+
+            {reviewsLoading ? (
+              <p className="text-center text-gray-500">Načítám recenze...</p>
+            ) : reviews.length > 0 ? (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="text-lg">{renderStars(review.rating || 0)}</div>
+                      <span className="text-xs text-gray-500">
+                        {review.createdAt?.toDate
+                          ? review.createdAt.toDate().toLocaleDateString()
+                          : ""}
+                      </span>
+                    </div>
+                    <p className="text-gray-700 mt-2 whitespace-pre-wrap">{review.text}</p>
+                    <p className="text-sm text-gray-500 mt-3">
+                      {review.reviewerName || review.reviewerEmail || "Anonym"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-gray-500">Zatím bez recenzí.</p>
             )}
           </div>
         </div>

@@ -236,7 +236,7 @@ export default function AddProduct() {
           </form>
 
           <div className="text-center mt-6">
-            <Link to="/offers" className="text-sm text-gray-400 hover:underline">
+            <Link to="/offers" className="text-sm !text-gray-400 hover:underline">
               Zpět na nabídky
             </Link>
           </div>

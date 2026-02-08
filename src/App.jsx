@@ -9,6 +9,7 @@ import AddProduct from "./pages/AddProduct";
 import Admin from "./pages/Admin";
 import EditProduct from "./pages/EditProduct";
 import ProductDetail from "./pages/ProductDetail";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/edit-product/:id" element={<EditProduct />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/user/:userId" element={<UserProfile />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

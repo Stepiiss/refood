@@ -17,6 +17,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
+  const [seller, setSeller] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,6 +45,28 @@ export default function ProductDetail() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const fetchSeller = async () => {
+      if (!user || !product?.userId) {
+        setSeller(null);
+        return;
+      }
+
+      try {
+        const sellerDoc = await getDoc(doc(db, "users", product.userId));
+        if (sellerDoc.exists()) {
+          setSeller({ id: product.userId, ...sellerDoc.data() });
+        } else {
+          setSeller({ id: product.userId });
+        }
+      } catch (err) {
+        console.error("Chyba při načítání profilu prodejce:", err);
+      }
+    };
+
+    fetchSeller();
+  }, [product?.userId, user]);
 
   if (loading) {
     return (
@@ -114,6 +137,18 @@ export default function ProductDetail() {
                 Přidáno: {product.createdAt?.toDate ? product.createdAt.toDate().toLocaleDateString() : "Neznámé datum"}
               </div>
 
+              {user && product.userId && (
+                <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm !text-gray-600 mb-2">Prodejce</p>
+                  <Link
+                    to={`/user/${product.userId}`}
+                    className="!text-[#25A73D] font-semibold"
+                  >
+                    {seller?.name || seller?.email || product.userEmail}
+                  </Link>
+                </div>
+              )}
+
               {!user ? (
                 <div className="text-center">
                   <p className="text-yellow-800 font-medium mb-4">Pro kontaktování prodejce se musíte přihlásit</p>
@@ -162,9 +197,6 @@ export default function ProductDetail() {
           {!user && (
             <div className="mt-8 text-center py-6 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-yellow-800 font-medium mb-2">Mapa je dostupná pouze pro přihlášené uživatele</p>
-              <Link to="/login" className="text-[#25A73D] hover:underline font-semibold">
-                Přihlásit se pro zobrazení mapy →
-              </Link>
             </div>
           )}
         </div>

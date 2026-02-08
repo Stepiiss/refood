@@ -40,7 +40,7 @@ export default function Navbar() {
                   </Link>
                   <button
                     onClick={() => auth.signOut().then(() => navigate("/"))}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg"
                   >
                     Odhlásit
                   </button>
@@ -48,7 +48,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="bg-[#25A73D] !text-white px-4 py-2 rounded-lg hover:bg-[#1e8c32] transition-colors"
+                  className="bg-[#25A73D] !text-white px-4 py-2 rounded-lg"
                 >
                   Přihlásit
                 </Link>
