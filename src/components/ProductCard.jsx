@@ -90,18 +90,18 @@ export default function ProductCard({ product, onEdit, onDelete, showActions = f
 
         {showActions ? (
           <div className="flex justify-between items-center">
-            <button
+            <BlackButton
               onClick={() => onEdit(product.id)}
-              className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-3 py-2 !bg-blue-500 hover:!bg-blue-600"
             >
               Upravit
-            </button>
-            <button
+            </BlackButton>
+            <BlackButton
               onClick={() => onDelete(product.id)}
-              className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-colors"
+              className="px-3 py-2 !bg-red-500 hover:!bg-red-600"
             >
               Smazat
-            </button>
+            </BlackButton>
           </div>
         ) : (
           <div className="flex justify-between items-center">

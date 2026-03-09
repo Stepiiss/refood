@@ -4,6 +4,8 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const AuthContext = createContext();
 
+// Hook pro rychlý přístup k přihlášenému uživateli napříč aplikací
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

@@ -12,9 +12,11 @@ import ProductDetail from "./pages/ProductDetail";
 import UserProfile from "./pages/UserProfile";
 
 function App() {
+  const baseName = import.meta.env.BASE_URL === "/" ? "/" : import.meta.env.BASE_URL.replace(/\/$/, "");
+
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={baseName}>
         <Routes>
           <Route path="/admin" element={<Admin />} />
           <Route path="/" element={<Home />} />

@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../AuthContext";
 import Logo from "../components/logo";
 import Navbar from "../components/navbar";
 
 export default function Home() {
-  const { user } = useAuth();
-
   return (
     
     <div className="min-h-screen bg-[#25A73D] w-screen">
@@ -27,7 +24,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/offers"
-                className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base !text-black font-medium rounded-xl text-[#25A73D] bg-white hover:bg-green-50 transition shadow-lg hover:scale-105 transform duration-200"
+                className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base !text-black font-medium rounded-xl bg-white hover:bg-green-50 transition shadow-lg hover:scale-105 transform duration-200"
               >
                 Prohlédnout produkty
               </Link>

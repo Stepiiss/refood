@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../components/logo";
 import Navbar from "../components/navbar";
 import ProductCard from "../components/ProductCard";
+import BlackButton from "../components/BlackButton";
 import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 export default function Admin() {
@@ -26,6 +27,15 @@ export default function Admin() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState("products");
   const navigate = useNavigate();
+
+  // Jednotné třídy pro záložky, aby nebyla logika stylů duplikovaná
+  const getTabButtonClass = (tabName) => {
+    return `px-6 py-3 font-medium transition-colors ${
+      activeTab === tabName
+        ? "text-[#25A73D] border-b-2 border-[#25A73D]"
+        : "text-gray-500 hover:text-gray-700"
+    }`;
+  };
 
   // Kontrola admin oprávnění
   useEffect(() => {
@@ -177,21 +187,13 @@ export default function Admin() {
           <div className="flex gap-4 mb-6 border-b border-gray-200">
             <button
               onClick={() => setActiveTab("products")}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === "products"
-                  ? "text-[#25A73D] border-b-2 border-[#25A73D]"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={getTabButtonClass("products")}
             >
               Produkty
             </button>
             <button
               onClick={() => setActiveTab("users")}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeTab === "users"
-                  ? "text-[#25A73D] border-b-2 border-[#25A73D]"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={getTabButtonClass("users")}
             >
               Uživatelé
             </button>
@@ -282,24 +284,24 @@ export default function Admin() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
-                            <button
+                            <BlackButton
                               onClick={() => handleToggleAdmin(user.id, user.role)}
-                              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                              className={`px-3 py-1 text-sm ${
                                 user.role === "admin"
-                                  ? "bg-orange-500 text-white hover:bg-orange-600"
-                                  : "bg-blue-500 text-white hover:bg-blue-600"
+                                  ? "!bg-orange-500 hover:!bg-orange-600"
+                                  : "!bg-blue-500 hover:!bg-blue-600"
                               }`}
                             >
                               {user.role === "admin"
                                 ? "Odebrat admin"
                                 : "Přidat admin"}
-                            </button>
-                            <button
+                            </BlackButton>
+                            <BlackButton
                               onClick={() => handleDeleteUser(user.id)}
-                              className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-colors text-sm"
+                              className="px-3 py-1 text-sm !bg-red-500 hover:!bg-red-600"
                             >
                               Smazat
-                            </button>
+                            </BlackButton>
                           </div>
                         </td>
                       </tr>

@@ -1,8 +1,34 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../firebase";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import Logo from "../components/logo";
+import BlackButton from "../components/BlackButton";
+
+function getGoogleLoginErrorMessage(errorCode) {
+  if (errorCode === "auth/unauthorized-domain") {
+    return `Doména ${window.location.hostname} není povolená ve Firebase Authentication (Authorized domains).`;
+  }
+
+  if (errorCode === "auth/operation-not-allowed") {
+    return "Google přihlášení není ve Firebase zapnuté. Zapněte provider Google v Authentication > Sign-in method.";
+  }
+
+  if (errorCode === "auth/popup-closed-by-user") {
+    return "Přihlášení bylo zrušeno zavřením okna Google.";
+  }
+
+  if (errorCode === "auth/network-request-failed") {
+    return "Síťová chyba. Zkontrolujte připojení a zkuste to znovu.";
+  }
+
+  return "Chyba při přihlášení přes Google.";
+}
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,7 +42,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
-    } catch (err) {
+    } catch {
       setError("Chyba při přihlášení. Zkontrolujte prosím své údaje.");
     }
   };
@@ -24,11 +50,18 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setError("");
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
     try {
       await signInWithPopup(auth, provider);
       navigate("/");
     } catch (err) {
-      setError("Chyba při přihlášení přes Google.");
+      if (err?.code === "auth/popup-blocked") {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
+      setError(getGoogleLoginErrorMessage(err?.code));
     }
   };
 
@@ -89,12 +122,12 @@ export default function Login() {
             </div>
 
             <div>
-              <button
+              <BlackButton
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#25A73D] hover:bg-[#1e8c32] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25A73D] transition-transform transform hover:scale-105"
+                className="w-full flex justify-center text-lg font-medium shadow-sm !bg-[#25A73D] hover:!bg-[#1e8c32]"
               >
                 Přihlásit se
-              </button>
+              </BlackButton>
             </div>
           </form>
 
@@ -106,16 +139,17 @@ export default function Login() {
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">Nebo pokračujte s</span>
               </div>
+              
             </div>
 
             <div className="mt-6">
-              <button
+              <BlackButton
                 onClick={handleGoogleLogin}
-                className="w-full inline-flex justify-center items-center py-3 px-4 border border-white-300 rounded-lg shadow-sm bg-white text-base font-medium text-white-700  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25A73D] transition-transform transform hover:scale-105"
+                className="w-full inline-flex justify-center items-center text-base font-medium border border-gray-300 shadow-sm !bg-white !text-gray-700 hover:!bg-gray-50"
               >
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" className="w-5 h-5 mr-3" />
                 Google
-              </button>
+              </BlackButton>
             </div>
           </div>
           <div className="text-center mt-8">

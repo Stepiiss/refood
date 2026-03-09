@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { auth, db } from "../firebase";
 import {
@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import Navbar from "../components/navbar";
 import Logo from "../components/logo";
+import BlackButton from "../components/BlackButton";
 
 const MAX_REVIEW_LENGTH = 500;
 
@@ -80,7 +81,8 @@ export default function UserProfile() {
     fetchProfileUser();
   }, [userId]);
 
-  const fetchReviews = async () => {
+  // Načte recenze uživatele a seřadí je od nejnovější
+  const fetchReviews = useCallback(async () => {
     if (!userId) {
       setLoadingReviews(false);
       return;
@@ -107,11 +109,11 @@ export default function UserProfile() {
     } finally {
       setLoadingReviews(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchReviews();
-  }, [userId]);
+  }, [fetchReviews]);
 
   const averageRating = useMemo(() => {
     if (!reviews.length) return 0;
@@ -284,13 +286,13 @@ export default function UserProfile() {
                   <p className="text-sm text-red-600 font-medium">{reviewError}</p>
                 )}
 
-                <button
+                <BlackButton
                   type="submit"
                   disabled={submitting}
-                  className="bg-[#25A73D] text-white px-6 py-3 rounded-lg hover:bg-[#1e8c32] transition-colors disabled:opacity-60"
+                  className="px-6 py-3 !bg-[#25A73D] hover:!bg-[#1e8c32] disabled:!bg-[#25A73D] disabled:opacity-60"
                 >
                   {submitting ? "Ukládám..." : "Odeslat recenzi"}
-                </button>
+                </BlackButton>
               </form>
             )}
           </div>

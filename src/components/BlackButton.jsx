@@ -11,7 +11,7 @@ export default function BlackButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${className}`}
+      className={`!bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed ${className}`}
       {...props}
     >
       {children}

@@ -4,6 +4,7 @@ import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import Logo from "../components/logo";
+import BlackButton from "../components/BlackButton";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -143,12 +144,12 @@ export default function Register() {
             </div>
 
             <div>
-              <button
+              <BlackButton
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-[#25A73D] hover:bg-[#1e8c32] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25A73D] transition-transform transform hover:scale-105"
+                className="w-full flex justify-center text-lg font-medium border border-transparent shadow-sm !bg-[#25A73D] hover:!bg-[#1e8c32] focus:ring-2 focus:ring-offset-2 focus:ring-[#25A73D] transition-transform transform hover:scale-105"
               >
                 Registrovat se
-              </button>
+              </BlackButton>
             </div>
           </form>
 

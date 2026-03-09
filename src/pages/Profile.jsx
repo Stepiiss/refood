@@ -5,6 +5,7 @@ import { doc, getDoc, collection, query, where, getDocs, deleteDoc } from "fireb
 import Navbar from "../components/navbar";
 import Logo from "../components/logo";
 import ProductCard from "../components/ProductCard";
+import BlackButton from "../components/BlackButton";
 import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 export default function Profile() {
@@ -201,12 +202,12 @@ export default function Profile() {
                   Admin panel
                 </Link>
               )}
-              <button
+              <BlackButton
                 onClick={handleLogout}
-                className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors"
+                className="px-6 py-3 !bg-red-500 hover:!bg-red-600"
               >
                 Odhlásit se
-              </button>
+              </BlackButton>
             </div>
           </div>
 
