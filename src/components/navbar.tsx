@@ -43,6 +43,14 @@ export default function Navbar() {
             >
               Nabídky
             </Link>
+            {currentUser && (
+              <Link
+                to="/map"
+                className="!text-gray-800 "
+              >
+                Mapa
+              </Link>
+            )}
             {currentUser ? (
               <>
                 <Link
@@ -105,6 +113,14 @@ export default function Navbar() {
             >
               Nabídky
             </Link>
+            {currentUser && (
+              <Link
+                to="/map"
+                className="!text-gray-800"
+              >
+                Mapa
+              </Link>
+            )}
             {currentUser ? (
               <>
                 <Link
