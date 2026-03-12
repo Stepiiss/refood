@@ -100,7 +100,7 @@ export default function ProductDetail() {
     : { lat: 50.0755, lng: 14.4378 }; // Praha jako výchozí
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-screen overflow-x-hidden">
+    <div className="bg-[#25A73D] min-h-screen w-full overflow-x-hidden">
       <Navbar />
 
       <div className="w-full mt-25 px-4 py-8">
@@ -158,7 +158,7 @@ export default function ProductDetail() {
                 </div>
               ) : (
                 <a
-                  href={`mailto:${product.userEmail || "kontakt@refood.cz"}?subject=Zájem o ${product.name}`}
+                  href={`mailto:${product.userEmail}?subject=Zájem o ${product.name}`}
                   className="w-full inline-block text-center bg-[#25A73D] !text-white px-6 py-3 rounded-lg hover:bg-[#1e8c32] transition-colors"
                 >
                   Kontaktovat prodejce
@@ -170,7 +170,7 @@ export default function ProductDetail() {
           {/* Mapa - pouze pro přihlášené */}
           {user && product.location && (
             <div className="mt-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">📍 Kde nás najdete</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">Kde nás najdete</h3>
               <div className="rounded-lg overflow-hidden shadow-lg">
                 <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                   <GoogleMap
@@ -190,13 +190,13 @@ export default function ProductDetail() {
 
           {user && !product.location && (
             <div className="mt-8 text-center py-6 bg-gray-100 rounded-lg">
-              <p className="text-gray-600">Pro tento produkt nebyla nastavena lokace</p>
+              <p className="!text-gray-600">Pro tento produkt nebyla nastavena lokace</p>
             </div>
           )}
 
           {!user && (
             <div className="mt-8 text-center py-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800 font-medium mb-2">Mapa je dostupná pouze pro přihlášené uživatele</p>
+              <p className="!text-yellow-800 font-medium mb-2">Mapa je dostupná pouze pro přihlášené uživatele</p>
             </div>
           )}
         </div>

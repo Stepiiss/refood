@@ -289,7 +289,7 @@ export default function EditProduct() {
               </BlackButton>
               <Link
                 to="/admin"
-                className="flex-1 py-3 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-center"
+                className="flex-1 py-3 px-4 !bg-gray-500 !text-white rounded-lg text-center"
               >
                 Zrušit
               </Link>
