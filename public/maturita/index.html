@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReFood</title>
+    <style>
+      :root {
+        --bg: #25a73d;
+        --bg-deep: #1f8f35;
+        --card: #ffffff;
+        --text: #1f2937;
+        --accent: #25a73d;
+        --muted: #5b6d60;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 3rem 1rem 3rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .bg-layer {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(37, 167, 61, 0.9) 0%, var(--bg-deep) 100%);
+        z-index: 0;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: 18px;
+        padding: 1.6rem;
+        box-shadow: 0 18px 40px rgba(15, 34, 20, 0.22);
+        margin-bottom: 1.2rem;
+        border: 1px solid rgba(37, 167, 61, 0.15);
+      }
+
+      h1, h2 {
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+      }
+
+      h2 {
+        color: #0f3a1d;
+        margin-bottom: 0.65rem;
+      }
+
+      p { line-height: 1.6; }
+
+      ul {
+        padding-left: 1.2rem;
+        margin: 0.7rem 0 0;
+      }
+
+      li { margin: 0.5rem 0; }
+
+      a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      a:hover { text-decoration: underline; }
+
+      .small {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .hero {
+        text-align: center;
+        color: #ecfdf1;
+        margin-bottom: 1.3rem;
+      }
+
+      .hero img {
+        width: 72px;
+        height: 72px;
+        margin-bottom: 0.6rem;
+      }
+
+      .hero p {
+        margin: 0;
+        color: #d6f5de;
+      }
+
+      code {
+        background: #edf8ef;
+        border-radius: 6px;
+        padding: 0.12rem 0.35rem;
+      }
+
+      .doc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.4rem 0 0;
+      }
+
+      .doc-list li {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.6rem;
+        margin: 0.8rem 0;
+      }
+
+      .doc-name {
+        font-weight: 600;
+        color: #0f3a1d;
+        min-width: 260px;
+      }
+
+      .doc-action {
+        display: inline-block;
+        background: #edf8ef;
+        border: 1px solid rgba(37, 167, 61, 0.2);
+        border-radius: 10px;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.92rem;
+      }
+
+      .doc-action:hover {
+        background: #e2f4e6;
+        text-decoration: none;
+      }
+
+      @media (max-width: 640px) {
+        .container {
+          padding: 2rem 0.8rem 2rem;
+        }
+
+        .card {
+          padding: 1.2rem;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-layer"></div>
+    <main class="container">
+      <section class="hero">
+       
+      </section>
+
+      <section class="card">
+        <h1>ReFood</h1>
+        <p>
+          ReFood je webová aplikace v Reactu (Vite + Firebase), která propojuje uživatele
+          pro sdílení přebytků jídla. Umožňuje registraci a přihlášení, přidávání nabídek,
+          filtrování nabídek, zobrazení detailu produktu a mapové zobrazení nabídek.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Odkazy</h2>
+        <ul>
+          <li>
+            Github s kódem:
+            <a href="https://github.com/Stepiiss/refood">https://github.com/Stepiiss/refood</a>
+          </li>
+          <li>
+            Nasazená online verze:
+            <a href="https://b2022hemest.delta-www.cz/dist">https://b2022hemest.delta-www.cz/dist</a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Dokumentace</h2>
+        <ul class="doc-list">
+          <li>
+            <span class="doc-name">ReFood dokumentacev (PDF)</span>
+            <a class="doc-action" href="./ReFood%20dokunetace%20Final.pdf" target="_blank" rel="noopener noreferrer">Otevřít</a>
+          </li>
+          <li>
+            <span class="doc-name">ReFood dokumentace (DOCX)</span>
+            <a class="doc-action" href="./ReFood%20dokunetace%20Final.docx" target="_blank" rel="noopener noreferrer">Otevřít</a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Návod k instalaci</h2>
+        <p><strong>Lokální spuštění</strong></p>
+        <ul>
+          <li>Nainstalujte Node.js 20.19 nebo novější.</li>
+          <li>Naklonujte repozitář: <code>git clone https://github.com/Stepiiss/refood.git</code></li>
+          <li>Přejděte do projektu: <code>cd refood</code></li>
+          <li>Nainstalujte: <code>npm install</code></li>
+          <li>Vytvořte soubor <code>.env</code> a nastavte <code>VITE_GOOGLE_MAPS_API_KEY</code>.</li>
+          <li>Spusťte: <code>npm run dev</code></li>
+        </ul>
+
+        <p><strong>Nasazení na server</strong></p>
+        <ul>
+          <li>Nastavte <code>VITE_BASE_PATH</code> podle cesty aplikace (např. <code>/dist/</code>).</li>
+          <li>Vytvořte produkční build: <code>npm run build</code>.</li>
+          <li>Nahrajte obsah složky <code>dist/</code> na server.</li>
+          <li>Nastavte SPA fallback na <code>index.html</code> pro routy jako <code>/offers</code>.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
