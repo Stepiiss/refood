@@ -12,6 +12,8 @@ export default function Offers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("created"); // "created" nebo "expiration"
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -45,6 +47,26 @@ export default function Offers() {
     ? products 
     : products.filter(product => product.category === selectedCategory);
 
+  // Filtrování podle hledaného termu
+  let finalFiltered = filteredProducts.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Sortování
+  finalFiltered.sort((a, b) => {
+    if (sortBy === "created") {
+      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+      return dateB - dateA;
+    } else if (sortBy === "expiration") {
+      const dateA = a.expirationDate?.toDate?.() || new Date(a.expirationDate);
+      const dateB = b.expirationDate?.toDate?.() || new Date(b.expirationDate);
+      return dateA - dateB; // Nejdřív expirující se zobrazí první
+    }
+    return 0;
+  });
+
   return (
     <div className="bg-[#25A73D] min-h-screen flex flex-col">
       <Navbar />
@@ -67,16 +89,31 @@ export default function Offers() {
             </div>
           )}
 
-          {/* Filtr kategorií */}
-          <div className="mb-8 flex justify-center">
+          {/* Filtry - Kategorie, Hledání a Sortování */}
+          <div className="mb-8 flex flex-col sm:flex-row gap-4">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-6 py-3 bg-white border-2 border-[#25A73D] text-gray-800 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#25A73D] cursor-pointer hover:border-[#1e8c32] transition-colors"
+              className="px-4 py-3 border-2 !border-[#25A73D] !bg-white !text-gray-800 rounded-lg font-medium focus:outline-none focus:border-[#1e8c32] cursor-pointer hover:border-[#1e8c32] transition-colors"
             >
               <option value="all">Všechny produkty</option>
               <option value="ready">Hotové jídlo</option>
               <option value="ingredients">Suroviny</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Hledat produkt..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-3 border-2 !border-[#25A73D] !bg-white !text-gray-800 rounded-lg font-medium focus:outline-none focus:border-[#1e8c32] hover:border-[#1e8c32] transition-colors placeholder-gray-500"
+            />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-3 border-2 !border-[#25A73D] !bg-white !text-gray-800 rounded-lg font-medium focus:outline-none focus:border-[#1e8c32] cursor-pointer hover:border-[#1e8c32] transition-colors"
+            >
+              <option value="created">Nejnovější</option>
+              <option value="expiration">Podle data spotřeby</option>
             </select>
           </div>
 
@@ -96,9 +133,9 @@ export default function Offers() {
             </div>
           ) : products.length > 0 ? (
             <>
-              {filteredProducts.length > 0 ? (
+              {finalFiltered.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredProducts.map((product) => (
+                  {finalFiltered.map((product) => (
                     <ProductCard
                       key={product.id}
                       product={product}
@@ -107,7 +144,9 @@ export default function Offers() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-10 text-gray-500">V této kategorii nejsou žádné produkty</div>
+                <div className="text-center py-10 text-gray-500">
+                  V těchto filtrech nejsou žádné produkty
+                </div>
               )}
             </>
           ) : (

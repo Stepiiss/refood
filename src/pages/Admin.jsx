@@ -108,19 +108,28 @@ export default function Admin() {
     fetchData();
   }, [isAdmin, activeTab]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Opravdu chceš tuto nabídku smazat?")) {
-      try {
-        await deleteDoc(doc(db, "products", id));
-        setProducts(products.filter((p) => p.id !== id));
-      } catch (err) {
-        console.error("Chyba při mazání:", err);
-        alert("Nepodařilo se smazat produkt");
-      }
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm("Opravdu chcete smazat tuto nabídku?")) {
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, "products", productId));
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.id !== productId)
+      );
+    } catch (err) {
+      console.error("Chyba při mazání produktu:", err);
+      alert("Nepodařilo se smazat produkt");
     }
   };
 
   const handleToggleAdmin = async (userId, currentRole) => {
+    if (userId === auth.currentUser?.uid) {
+      alert("Nemůžete změnit svou vlastní roli");
+      return;
+    }
+
     if (
       window.confirm(
         `Opravdu chcete ${
@@ -142,18 +151,6 @@ export default function Admin() {
       } catch (err) {
         console.error("Chyba při změně role:", err);
         alert("Nepodařilo se změnit roli uživatele");
-      }
-    }
-  };
-
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm("Opravdu chcete smazat tohoto uživatele?")) {
-      try {
-        await deleteDoc(doc(db, "users", userId));
-        setUsers(users.filter((u) => u.id !== userId));
-      } catch (err) {
-        console.error("Chyba při mazání:", err);
-        alert("Nepodařilo se smazat uživatele");
       }
     }
   };
@@ -233,7 +230,7 @@ export default function Admin() {
                     product={product}
                     showActions={true}
                     onEdit={(id) => navigate(`/edit-product/${id}`)}
-                    onDelete={handleDelete}
+                    onDelete={handleDeleteProduct}
                   />
                 ))}
               </div>
@@ -295,12 +292,6 @@ export default function Admin() {
                               {user.role === "admin"
                                 ? "Odebrat admin"
                                 : "Přidat admin"}
-                            </BlackButton>
-                            <BlackButton
-                              onClick={() => handleDeleteUser(user.id)}
-                              className="px-3 py-1 text-sm !bg-red-500 hover:!bg-red-600"
-                            >
-                              Smazat
                             </BlackButton>
                           </div>
                         </td>

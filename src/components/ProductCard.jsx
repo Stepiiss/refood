@@ -96,12 +96,14 @@ export default function ProductCard({ product, onEdit, onDelete, showActions = f
             >
               Upravit
             </BlackButton>
-            <BlackButton
-              onClick={() => onDelete(product.id)}
-              className="px-3 py-2 !bg-red-500 hover:!bg-red-600"
-            >
-              Smazat
-            </BlackButton>
+            {typeof onDelete === "function" && (
+              <BlackButton
+                onClick={() => onDelete(product.id)}
+                className="px-3 py-2 !bg-red-500 hover:!bg-red-600"
+              >
+                Smazat
+              </BlackButton>
+            )}
           </div>
         ) : (
           <div className="flex justify-between items-center">
