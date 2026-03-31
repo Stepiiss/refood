@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import Logo from "../components/logo";
 import Navbar from "../components/navbar";
 import ProductCard from "../components/ProductCard";
+import ErrorAlert from "../components/ErrorAlert";
+import ProductCardSkeletonGrid from "../components/ProductCardSkeletonGrid";
 import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 export default function Offers() {
@@ -83,11 +85,7 @@ export default function Offers() {
             )}
           </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
-              {error}
-            </div>
-          )}
+          <ErrorAlert message={error} centered className="mb-6" />
 
           {/* Filtry - Kategorie, Hledání a Sortování */}
           <div className="mb-8 flex flex-col sm:flex-row gap-4">
@@ -118,19 +116,7 @@ export default function Offers() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 animate-pulse">
-                  <div className="w-full h-48 bg-gray-300"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-6 bg-gray-300 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                    <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-                    <div className="h-10 bg-gray-300 rounded"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ProductCardSkeletonGrid count={8} />
           ) : products.length > 0 ? (
             <>
               {finalFiltered.length > 0 ? (

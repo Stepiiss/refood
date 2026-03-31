@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
-import { GoogleMap, InfoWindow, LoadScript, Marker } from "@react-google-maps/api";
+import { InfoWindow, Marker } from "@react-google-maps/api";
 import { db } from "../firebase";
+import AppGoogleMap from "../components/AppGoogleMap";
 import Navbar from "../components/navbar";
+import MapOfferInfoCard from "../components/MapOfferInfoCard";
 import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 // Nastavení mapy: šířka 100 %, výška celé okno minus navbar
@@ -52,10 +53,14 @@ export default function MapOffers() {
 
   // Při otevření stránky načteme nabídky z databáze
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchProducts = async () => {
       try {
-        // Nejdřív smažeme prošlé nabídky
-        await cleanupExpiredProducts();
+        // Čištění expirovaných produktů běží na pozadí, aby neblokovalo render mapy
+        cleanupExpiredProducts().catch((cleanupErr) => {
+          console.error("Cleanup expirovaných produktů selhal:", cleanupErr);
+        });
 
         // Vezmeme poslední přidané nabídky
         const productsQuery = query(
@@ -70,16 +75,26 @@ export default function MapOffers() {
           ...docRef.data(),
         }));
 
-        setProducts(productsData);
+        if (!isCancelled) {
+          setProducts(productsData);
+        }
       } catch (err) {
         console.error("Chyba při načítání mapy:", err);
-        setError("Nepodařilo se načíst nabídky pro mapu");
+        if (!isCancelled) {
+          setError("Nepodařilo se načíst nabídky pro mapu");
+        }
       } finally {
-        setLoading(false);
+        if (!isCancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProducts();
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   // Necháme jen nabídky, co mají platnou lokaci
@@ -145,50 +160,26 @@ export default function MapOffers() {
           </div>
         ) : (
           // Tady se vykreslí mapa
-          <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-            <GoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={10}>
-              {/* Marker pro každou nabídku s lokací */}
-              {productsWithLocation.map((product) => (
-                <Marker
-                  key={product.id}
-                  position={product.mapLocation}
-                  onClick={() => setSelectedProductId(product.id)}
-                />
-              ))}
+          <AppGoogleMap mapContainerStyle={mapContainerStyle} center={mapCenter} zoom={10}>
+            {/* Marker pro každou nabídku s lokací */}
+            {productsWithLocation.map((product) => (
+              <Marker
+                key={product.id}
+                position={product.mapLocation}
+                onClick={() => setSelectedProductId(product.id)}
+              />
+            ))}
 
-              {/* Po kliknutí na marker se ukáže bublina s detailem */}
-              {selectedProduct && (
-                <InfoWindow
-                  position={selectedProduct.mapLocation}
-                  onCloseClick={() => setSelectedProductId(null)}
-                >
-                  <div className="max-w-[220px]">
-                    {selectedProduct.picture ? (
-                      <img
-                        src={selectedProduct.picture}
-                        alt={selectedProduct.name}
-                        className="w-full h-24 object-cover rounded-md mb-2"
-                      />
-                    ) : (
-                      <div className="w-full h-24 bg-gray-100 rounded-md mb-2 flex items-center justify-center">
-                        <span className="text-xs !text-gray-500">Bez obrázku</span>
-                      </div>
-                    )}
-                    <p className="font-semibold !text-gray-900">{selectedProduct.name}</p>
-                    <p className="text-sm !text-gray-600 mb-2 line-clamp-2">
-                      {selectedProduct.description}
-                    </p>
-                    <Link
-                      to={`/product/${selectedProduct.id}`}
-                      className="text-sm font-semibold !text-[#25A73D] hover:underline"
-                    >
-                      Detail nabídky
-                    </Link>
-                  </div>
-                </InfoWindow>
-              )}
-            </GoogleMap>
-          </LoadScript>
+            {/* Po kliknutí na marker se ukáže bublina s detailem */}
+            {selectedProduct && (
+              <InfoWindow
+                position={selectedProduct.mapLocation}
+                onCloseClick={() => setSelectedProductId(null)}
+              >
+                <MapOfferInfoCard product={selectedProduct} />
+              </InfoWindow>
+            )}
+          </AppGoogleMap>
         )}
       </div>
     </div>

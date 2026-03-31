@@ -16,6 +16,9 @@ import Logo from "../components/logo";
 import Navbar from "../components/navbar";
 import ProductCard from "../components/ProductCard";
 import BlackButton from "../components/BlackButton";
+import ErrorAlert from "../components/ErrorAlert";
+import ProductCardSkeletonGrid from "../components/ProductCardSkeletonGrid";
+import RoleBadge from "../components/RoleBadge";
 import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 export default function Admin() {
@@ -157,8 +160,8 @@ export default function Admin() {
 
   if (checkingAuth) {
     return (
-      <div className="bg-[#25A73D] min-h-screen w-full flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+      <div className="page-shell flex items-center justify-center">
+        <div className="surface-card p-8">
           <p className="text-xl text-gray-700">Ověřování oprávnění...</p>
         </div>
       </div>
@@ -170,11 +173,11 @@ export default function Admin() {
   }
 
   return (
-    <div className="bg-[#25A73D] min-h-screen flex flex-col">
+    <div className="page-shell flex flex-col">
       <Navbar />
 
-      <div className="w-full mt-25 px-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+      <div className="page-content mt-25">
+        <div className="surface-card">
           <div className="text-center flex flex-col gap-2 mb-8">
             <Logo className="h-16 mb-5" />
             <h2 className="text-3xl font-bold text-gray-800">Admin panel</h2>
@@ -196,31 +199,10 @@ export default function Admin() {
             </button>
           </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6 text-center">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
+          <ErrorAlert message={error} centered className="mb-6" />
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 animate-pulse"
-                >
-                  <div className="w-full h-48 bg-gray-300"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-6 bg-gray-300 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-300 rounded"></div>
-                    <div className="flex gap-2">
-                      <div className="h-10 bg-gray-300 rounded flex-1"></div>
-                      <div className="h-10 bg-gray-300 rounded flex-1"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ProductCardSkeletonGrid count={8} />
           ) : activeTab === "products" ? (
             products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -264,15 +246,7 @@ export default function Admin() {
                       <tr key={user.id} className="border-b hover:bg-gray-50">
                         <td className="px-4 py-3 text-gray-800">{user.email}</td>
                         <td className="px-4 py-3">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm ${
-                              user.role === "admin"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {user.role || "user"}
-                          </span>
+                          <RoleBadge role={user.role} />
                         </td>
                         <td className="px-4 py-3 text-gray-600 text-sm">
                           {user.createdAt?.toDate

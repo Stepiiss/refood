@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { syncAuthUserToFirestore } from "./utils/syncAuthUserToFirestore";
 
 const AuthContext = createContext();
 
@@ -15,7 +16,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          //synchronizace uživatele do Firestore při přihlášení
+          await syncAuthUserToFirestore(user);
+        } catch (err) {
+          console.error("Chyba při synchronizaci uživatele:", err);
+        }
+      }
       setCurrentUser(user);
       setLoading(false);
     });

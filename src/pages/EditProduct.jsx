@@ -3,9 +3,12 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { db, auth, storage } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { Marker } from "@react-google-maps/api";
 import Navbar from "../components/navbar";
 import BlackButton from "../components/BlackButton";
+import AppGoogleMap from "../components/AppGoogleMap";
+import ErrorAlert from "../components/ErrorAlert";
+import FormField from "../components/FormField";
 
 const mapContainerStyle = {
   width: "100%",
@@ -139,8 +142,8 @@ export default function EditProduct() {
 
   if (checkingAuth) {
     return (
-      <div className="bg-[#25A73D] min-h-screen w-full flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+      <div className="page-shell flex items-center justify-center">
+        <div className="surface-card p-8">
           <p className="text-xl text-gray-700">Ověřování oprávnění...</p>
         </div>
       </div>
@@ -152,66 +155,52 @@ export default function EditProduct() {
   }
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-full flex flex-col">
+    <div className="page-shell flex flex-col">
       <Navbar />
 
       {/* Hlavní obsah */}
-      <div className="w-full mt-20 px-4 py-8">
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+      <div className="page-content mt-20 py-8">
+        <div className="surface-card max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-800">Upravit nabídku</h2>
           </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
+          <ErrorAlert message={error} className="mb-6" />
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700" htmlFor="name">
-                Název produktu
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
-                required
-              />
-            </div>
+            <FormField
+              id="name"
+              label="Název produktu"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1"
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700" htmlFor="description">
-                Popis
-              </label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows="4"
-                className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
-                required
-              />
-            </div>
+            <FormField
+              id="description"
+              as="textarea"
+              label="Popis"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              className="mt-1"
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700" htmlFor="category">
-                Kategorie
-              </label>
-              <select
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
-                required
-              >
-                <option value="ready">Hotové jídlo</option>
-                <option value="ingredients">Suroviny</option>
-              </select>
-            </div>
+            <FormField
+              id="category"
+              as="select"
+              label="Kategorie"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="mt-1"
+              options={[
+                { value: "ready", label: "Hotové jídlo" },
+                { value: "ingredients", label: "Suroviny" },
+              ]}
+              required
+            />
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -235,21 +224,19 @@ export default function EditProduct() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => setPicture(e.target.files[0])}
-                className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
+                className="form-input mt-1"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="expirationDate">
-                Datum spotřeby
-              </label>
-              <input
+              <FormField
                 id="expirationDate"
                 type="date"
+                label="Datum spotřeby"
                 value={expirationDate}
                 onChange={(e) => setExpirationDate(e.target.value)}
                 min={getTodayDate()}
-                className="mt-1 w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#25A73D]"
+                className="mt-1"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Vyberte datum, do kterého je potravina spotřebitelná
@@ -260,18 +247,16 @@ export default function EditProduct() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 📍 Vyberte lokaci na mapě (klikněte na mapu)
               </label>
-              <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  center={location ? { lat: location.latitude, lng: location.longitude } : defaultCenter}
-                  zoom={12}
-                  onClick={handleMapClick}
-                >
-                  {location && (
-                    <Marker position={{ lat: location.latitude, lng: location.longitude }} />
-                  )}
-                </GoogleMap>
-              </LoadScript>
+              <AppGoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={location ? { lat: location.latitude, lng: location.longitude } : defaultCenter}
+                zoom={12}
+                onClick={handleMapClick}
+              >
+                {location && (
+                  <Marker position={{ lat: location.latitude, lng: location.longitude }} />
+                )}
+              </AppGoogleMap>
               {location && (
                 <p className="text-sm text-gray-600 mt-2">
                   Vybraná lokace: {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
@@ -289,7 +274,7 @@ export default function EditProduct() {
               </BlackButton>
               <Link
                 to="/admin"
-                className="flex-1 py-3 px-4 !bg-gray-500 !text-white rounded-lg text-center"
+                className="flex-1 py-3 px-4 bg-gray-500 text-white rounded-lg text-center hover:bg-gray-600 transition-colors"
               >
                 Zrušit
               </Link>

@@ -3,10 +3,13 @@ import { db, storage, auth } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate, Link } from "react-router-dom";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { Marker } from "@react-google-maps/api";
 import Logo from "../components/logo";
 import Navbar from "../components/navbar";
 import BlackButton from "../components/BlackButton";
+import AppGoogleMap from "../components/AppGoogleMap";
+import ErrorAlert from "../components/ErrorAlert";
+import FormField from "../components/FormField";
 
 const mapContainerStyle = {
   width: "100%",
@@ -106,63 +109,49 @@ export default function AddProduct() {
   };
 
   return (
-    <div className="bg-[#25A73D] min-h-screen overflow-x-hidden">
+    <div className="page-shell">
       <Navbar />
       
-      <div className="w-full mt-25 px-4">
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+      <div className="page-content mt-25">
+        <div className="surface-card max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <Logo className="h-16 mb-5 mx-auto" />
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Přidat produkt</h2>
           </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
+          <ErrorAlert message={error} className="mb-6" />
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Název produktu
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-[#25A73D] focus:outline-none"
-                required
-              />
-            </div>
+            <FormField
+              id="name"
+              label="Název produktu"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Popis
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-[#25A73D] focus:outline-none"
-                rows="4"
-                required
-              />
-            </div>
+            <FormField
+              id="description"
+              as="textarea"
+              label="Popis"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Kategorie
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-[#25A73D] focus:outline-none"
-                required
-              >
-                <option value="ready">Hotové jídlo</option>
-                <option value="ingredients">Suroviny</option>
-              </select>
-            </div>
+            <FormField
+              id="category"
+              as="select"
+              label="Kategorie"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              options={[
+                { value: "ready", label: "Hotové jídlo" },
+                { value: "ingredients", label: "Suroviny" },
+              ]}
+              required
+            />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -189,18 +178,16 @@ export default function AddProduct() {
                 Vyberte lokaci na mapě (klikněte na mapu)
               </label>
               <div className="rounded-lg overflow-hidden">
-                <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                  <GoogleMap
-                    mapContainerStyle={mapContainerStyle}
-                    center={location ? { lat: location.latitude, lng: location.longitude } : defaultCenter}
-                    zoom={12}
-                    onClick={handleMapClick}
-                  >
-                    {location && (
-                      <Marker position={{ lat: location.latitude, lng: location.longitude }} />
-                    )}
-                  </GoogleMap>
-                </LoadScript>
+                <AppGoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={location ? { lat: location.latitude, lng: location.longitude } : defaultCenter}
+                  zoom={12}
+                  onClick={handleMapClick}
+                >
+                  {location && (
+                    <Marker position={{ lat: location.latitude, lng: location.longitude }} />
+                  )}
+                </AppGoogleMap>
               </div>
               {location && (
                 <p className="text-sm text-gray-600 mt-2">
@@ -210,15 +197,13 @@ export default function AddProduct() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Datum spotřeby *
-              </label>
-              <input
+              <FormField
+                id="expirationDate"
                 type="date"
+                label="Datum spotřeby *"
                 value={expirationDate}
                 onChange={(e) => setExpirationDate(e.target.value)}
                 min={getTodayDate()}
-                className="w-full p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-[#25A73D] focus:outline-none"
                 required
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -236,7 +221,7 @@ export default function AddProduct() {
           </form>
 
           <div className="text-center mt-6">
-            <Link to="/offers" className="text-sm !text-blue hover:underline">
+            <Link to="/offers" className="text-sm text-blue-600 hover:underline">
               Zpět na nabídky
             </Link>
           </div>

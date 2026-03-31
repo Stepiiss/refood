@@ -6,6 +6,8 @@ import Navbar from "../components/navbar";
 import Logo from "../components/logo";
 import ProductCard from "../components/ProductCard";
 import BlackButton from "../components/BlackButton";
+import ErrorAlert from "../components/ErrorAlert";
+import RoleBadge from "../components/RoleBadge";
 import { cleanupExpiredProducts } from "../utils/cleanupExpiredProducts";
 
 export default function Profile() {
@@ -131,22 +133,18 @@ export default function Profile() {
   };
 
   return (
-    <div className="bg-[#25A73D] flex justify-center items-stretch min-h-screen">
+    <div className="page-shell flex justify-center items-stretch">
       <Navbar />
 
-      <div className="max-w-full mt-25 px-4 pb-8">
+      <div className="page-content max-w-full mt-25 pb-8">
         <div className="max-w-6xl mx-auto w-full">
-          <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 md:p-10 mb-8">
+          <div className="surface-card p-4 sm:p-8 md:p-10 mb-8">
             <div className="text-center mb-6">
               <Logo className="h-16 mb-5 mx-auto" />
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Můj profil</h2>
             </div>
 
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
-                {error}
-              </div>
-            )}
+            <ErrorAlert message={error} centered className="mb-6" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
               <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
@@ -157,13 +155,7 @@ export default function Profile() {
                     <p className="text-gray-800 font-medium break-words">{user?.email}</p>
                   </div>
                   <div>
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm ${
-                      user?.role === "admin" 
-                        ? "bg-green-100 text-green-800" 
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
-                      {user?.role === "admin" ? "Administrátor" : "Uživatel"}
-                    </span>
+                    <RoleBadge role={user?.role} />
                   </div>
                 </div>
               </div>
@@ -239,14 +231,10 @@ export default function Profile() {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl p-6 mt-8">
+          <div className="surface-card-compact mt-8">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">Moje recenze</h3>
 
-            {reviewsError && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
-                {reviewsError}
-              </div>
-            )}
+            <ErrorAlert message={reviewsError} centered className="mb-6" />
 
             {reviewsLoading ? (
               <p className="text-center text-gray-500">Načítám recenze...</p>
@@ -270,7 +258,7 @@ export default function Profile() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500">Zatím bez recenzí.</p>
+              <p className="text-center text-gray-500">Nebyla přidána žádná recenze</p>
             )}
           </div>
         </div>

@@ -14,6 +14,7 @@ import {
 import Navbar from "../components/navbar";
 import Logo from "../components/logo";
 import BlackButton from "../components/BlackButton";
+import ErrorAlert from "../components/ErrorAlert";
 
 const MAX_REVIEW_LENGTH = 500;
 
@@ -190,7 +191,7 @@ export default function UserProfile() {
 
   if (loadingProfile) {
     return (
-      <div className="bg-[#25A73D] min-h-screen">
+      <div className="page-shell">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-xl text-white">Načítám profil...</p>
@@ -200,11 +201,11 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="bg-[#25A73D] min-h-screen w-screen overflow-x-hidden">
+    <div className="page-shell">
       <Navbar />
 
-      <div className="w-full mt-25 px-4 py-8">
-        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10">
+      <div className="page-content mt-25 py-8">
+        <div className="surface-card max-w-4xl mx-auto p-6 sm:p-8 md:p-10">
           <div className="text-center mb-8">
             <Logo className="h-16 mb-5 mx-auto" />
             <Link to="/offers" className="text-[#25A73D] hover:underline mb-4 inline-block">
@@ -213,11 +214,7 @@ export default function UserProfile() {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Profil uživatele</h1>
           </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
-              {error}
-            </div>
-          )}
+          <ErrorAlert message={error} centered className="mb-6" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div className="bg-gray-50 p-5 rounded-lg">
@@ -273,7 +270,7 @@ export default function UserProfile() {
                   <textarea
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
-                    className="w-full min-h-[120px] p-3 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-[#25A73D] focus:outline-none"
+                    className="form-input min-h-[120px]"
                     placeholder="Napište svou zkušenost..."
                     maxLength={MAX_REVIEW_LENGTH}
                   />
@@ -289,7 +286,7 @@ export default function UserProfile() {
                 <BlackButton
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-3 !bg-[#25A73D] hover:!bg-[#1e8c32] disabled:!bg-[#25A73D] disabled:opacity-60"
+                  className="px-6 py-3 bg-[#25A73D] hover:bg-[#1e8c32] disabled:bg-[#25A73D] disabled:opacity-60"
                 >
                   {submitting ? "Ukládám..." : "Odeslat recenzi"}
                 </BlackButton>

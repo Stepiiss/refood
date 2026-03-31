@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { db, auth } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { Marker } from "@react-google-maps/api";
 import Navbar from "../components/navbar";
 import Logo from "../components/logo";
+import AppGoogleMap from "../components/AppGoogleMap";
+import ErrorAlert from "../components/ErrorAlert";
 
 const mapContainerStyle = {
   width: "100%",
@@ -112,6 +114,8 @@ export default function ProductDetail() {
             </Link>
           </div>
 
+          <ErrorAlert message={error} centered className="mb-6" />
+
           <div className="grid md:grid-cols-2 gap-8">
             {/* Obrázek */}
             <div>
@@ -172,15 +176,13 @@ export default function ProductDetail() {
             <div className="mt-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">Kde nás najdete</h3>
               <div className="rounded-lg overflow-hidden shadow-lg">
-                <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                  <GoogleMap
-                    mapContainerStyle={mapContainerStyle}
-                    center={center}
-                    zoom={15}
-                  >
-                    <Marker position={center} />
-                  </GoogleMap>
-                </LoadScript>
+                <AppGoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={center}
+                  zoom={15}
+                >
+                  <Marker position={center} />
+                </AppGoogleMap>
               </div>
               <p className="text-sm text-gray-600 mt-2">
                 Souřadnice: {product.location.latitude.toFixed(6)}, {product.location.longitude.toFixed(6)}

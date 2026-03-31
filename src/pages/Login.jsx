@@ -9,6 +9,8 @@ import {
 } from "firebase/auth";
 import Logo from "../components/logo";
 import BlackButton from "../components/BlackButton";
+import ErrorAlert from "../components/ErrorAlert";
+import FormField from "../components/FormField";
 
 function getGoogleLoginErrorMessage(errorCode) {
   if (errorCode === "auth/unauthorized-domain") {
@@ -66,9 +68,9 @@ export default function Login() {
   };
 
   return (
-    <div className="bg-[#25A73D] w-screen">
+    <div className="page-shell">
       <div className="min-h-screen flex items-center justify-center w-full p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 md:p-10">
+        <div className="surface-card w-full max-w-md">
           <div className="text-center flex flex-col gap-2 mb-8">
             <Logo className="h-16 mb-5" />
             <h2 className="text-3xl font-bold text-gray-800">Přihlaste se</h2>
@@ -80,51 +82,33 @@ export default function Login() {
             </p>
           </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
+          <ErrorAlert message={error} className="mb-6" />
 
           <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700" htmlFor="email">
-                Emailová adresa
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Váš e-mail"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-3 border text-black border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
-                  required
-                />
-              </div>
-            </div>
+            <FormField
+              id="email"
+              type="email"
+              label="Emailová adresa"
+              placeholder="Váš e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700" htmlFor="password">
-                Heslo
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Zadejte své heslo"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-3 border border-gray-300 text-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#25A73D] focus:border-transparent transition"
-                  required
-                />
-              </div>
-            </div>
+            <FormField
+              id="password"
+              type="password"
+              label="Heslo"
+              placeholder="Zadejte své heslo"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
 
             <div>
               <BlackButton
                 type="submit"
-                className="w-full flex justify-center text-lg font-medium shadow-sm !bg-[#25A73D] hover:!bg-[#1e8c32]"
+                className="w-full flex justify-center text-lg font-medium shadow-sm bg-[#25A73D] hover:bg-[#1e8c32]"
               >
                 Přihlásit se
               </BlackButton>
@@ -145,7 +129,7 @@ export default function Login() {
             <div className="mt-6">
               <BlackButton
                 onClick={handleGoogleLogin}
-                className="w-full inline-flex justify-center items-center text-base font-medium border border-gray-300 shadow-sm !bg-white !text-gray-700 hover:!bg-gray-50"
+                className="w-full inline-flex justify-center items-center text-base font-medium border border-gray-300 shadow-sm bg-white text-gray-700 hover:bg-gray-50"
               >
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" className="w-5 h-5 mr-3" />
                 Google

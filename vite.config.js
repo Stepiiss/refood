@@ -18,5 +18,17 @@ export default defineConfig(({ mode }) => {
   return {
     base: normalizedBasePath,
     plugins: [react(), tailwindcss()],
+    build: {
+      chunkSizeWarningLimit: 1000, // Zvýšit limit aby se nezobrazovalo varování
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+            'react-router': ['react-router-dom'],
+            'google-maps': ['@react-google-maps/api'],
+          }
+        }
+      }
+    }
   }
 })
