@@ -129,7 +129,7 @@ export default function Login() {
             <div className="mt-6">
               <BlackButton
                 onClick={handleGoogleLogin}
-                className="w-full inline-flex justify-center items-center text-base font-medium border border-gray-300 shadow-sm bg-white text-gray-700 hover:bg-gray-50"
+                className="w-full inline-flex justify-center items-center text-base font-medium border border-gray-300 shadow-sm bg-white !text-gray-700 hover:bg-gray-50 hover:!text-white"
               >
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" className="w-5 h-5 mr-3" />
                 Google

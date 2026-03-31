@@ -35,7 +35,7 @@ export default function Admin() {
 
   // Jednotné třídy pro záložky, aby nebyla logika stylů duplikovaná
   const getTabButtonClass = (tabName) => {
-    return `px-6 py-3 font-medium transition-colors ${
+    return `px-3 sm:px-6 py-3 text-sm sm:text-base font-medium whitespace-nowrap transition-colors ${
       activeTab === tabName
         ? "text-[#25A73D] border-b-2 border-[#25A73D]"
         : "text-gray-500 hover:text-gray-700"
@@ -242,25 +242,27 @@ export default function Admin() {
           </div>
 
           {/* Záložky */}
-          <div className="flex gap-4 mb-6 border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab("products")}
-              className={getTabButtonClass("products")}
-            >
-              Produkty
-            </button>
-            <button
-              onClick={() => setActiveTab("users")}
-              className={getTabButtonClass("users")}
-            >
-              Uživatelé
-            </button>
-            <button
-              onClick={() => setActiveTab("reviews")}
-              className={getTabButtonClass("reviews")}
-            >
-              Recenze
-            </button>
+          <div className="mb-6 border-b border-gray-200 overflow-x-auto">
+            <div className="flex min-w-max gap-2 sm:gap-4">
+              <button
+                onClick={() => setActiveTab("products")}
+                className={getTabButtonClass("products")}
+              >
+                Produkty
+              </button>
+              <button
+                onClick={() => setActiveTab("users")}
+                className={getTabButtonClass("users")}
+              >
+                Uživatelé
+              </button>
+              <button
+                onClick={() => setActiveTab("reviews")}
+                className={getTabButtonClass("reviews")}
+              >
+                Recenze
+              </button>
+            </div>
           </div>
 
           <ErrorAlert message={error} centered className="mb-6" />
@@ -344,7 +346,7 @@ export default function Admin() {
               </div>
             )
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                   <p className="text-sm text-gray-500">Celkem recenzí</p>
@@ -367,8 +369,8 @@ export default function Admin() {
               </div>
 
               {filteredReviews.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
+                <div className="overflow-x-auto rounded-lg border border-gray-200">
+                  <table className="w-full min-w-[920px] border-collapse">
                     <thead>
                       <tr className="bg-gray-100">
                         <th className="px-3 py-3 text-left text-gray-700 font-semibold">Hodnocení</th>
@@ -384,10 +386,10 @@ export default function Admin() {
                           <td className="px-3 py-3 text-yellow-500 whitespace-nowrap">
                             {renderStars(review.rating || 0)}
                           </td>
-                          <td className="px-3 py-3 text-gray-700 max-w-[340px]">
+                          <td className="px-3 py-3 text-gray-700 max-w-[300px]">
                             <p className="line-clamp-3">{review.text || "Bez textu"}</p>
                           </td>
-                          <td className="px-3 py-3 text-sm text-gray-600">
+                          <td className="px-3 py-3 text-sm text-gray-600 min-w-[180px]">
                             <p>{review.reviewerName || "Neznámý"}</p>
                             <p>{review.reviewerEmail || "Bez emailu"}</p>
                           </td>
@@ -396,8 +398,8 @@ export default function Admin() {
                               ? review.createdAt.toDate().toLocaleDateString()
                               : "N/A"}
                           </td>
-                          <td className="px-3 py-3">
-                            <div className="flex flex-col gap-2 min-w-[120px]">
+                          <td className="px-3 py-3 min-w-[120px]">
+                            <div className="flex flex-col gap-2">
                               <BlackButton
                                 onClick={() => handleDeleteReview(review.id)}
                                 className="!bg-red-600 hover:!bg-red-700 px-3 py-2 text-xs"
