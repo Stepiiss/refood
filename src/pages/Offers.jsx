@@ -16,6 +16,9 @@ export default function Offers() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("created"); // "created" nebo "expiration"
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PRODUCTS_PER_PAGE = 8;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -69,6 +72,21 @@ export default function Offers() {
     return 0;
   });
 
+  const totalPages = Math.max(1, Math.ceil(finalFiltered.length / PRODUCTS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchTerm, sortBy]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const paginatedProducts = finalFiltered.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+
   return (
     <div className="bg-[#25A73D] min-h-screen flex flex-col">
       <Navbar />
@@ -120,15 +138,44 @@ export default function Offers() {
           ) : products.length > 0 ? (
             <>
               {finalFiltered.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {finalFiltered.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      showActions={false}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {paginatedProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        showActions={false}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <p className="text-sm text-gray-600">
+                      Zobrazeno {startIndex + 1}-{Math.min(startIndex + PRODUCTS_PER_PAGE, finalFiltered.length)} z {finalFiltered.length} produktů
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      >
+                        Předchozí
+                      </button>
+                      <span className="text-sm font-medium text-gray-700">
+                        Strana {currentPage} / {totalPages}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                      >
+                        Další
+                      </button>
+                    </div>
+                  </div>
+                </>
               ) : (
                 <div className="text-center py-10 text-gray-500">
                   V těchto filtrech nejsou žádné produkty

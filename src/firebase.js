@@ -3,20 +3,34 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from 'firebase/storage';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const requiredEnvKeys = [
+  "VITE_FIREBASE_API_KEY",
+  "VITE_FIREBASE_AUTH_DOMAIN",
+  "VITE_FIREBASE_DATABASE_URL",
+  "VITE_FIREBASE_PROJECT_ID",
+  "VITE_FIREBASE_STORAGE_BUCKET",
+  "VITE_FIREBASE_MESSAGING_SENDER_ID",
+  "VITE_FIREBASE_APP_ID",
+];
+
+const missingKeys = requiredEnvKeys.filter((key) => !import.meta.env[key]);
+
+if (missingKeys.length > 0) {
+  throw new Error(
+    `Missing Firebase environment variables: ${missingKeys.join(", ")}`
+  );
+}
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDH4NWNWYoFFP0aqjomcOJRsYNTG1qDTCk",
-  authDomain: "refood-bdbfa.firebaseapp.com",
-  databaseURL: "https://refood-bdbfa-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "refood-bdbfa",
-  storageBucket: "refood-bdbfa.firebasestorage.app",
-  messagingSenderId: "803279119690",
-  appId: "1:803279119690:web:c05d9c8847e9dde38e0db3",
-  measurementId: "G-KRV296D9TQ"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 
